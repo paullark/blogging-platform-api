@@ -1,0 +1,13 @@
+.idea
+.vscode
+
+__pycache__/
+*/__pycashe__/
+
+!*media/.gitkeep
+media/*
+
+!*logs/.gitkeep
+logs/*
+
+.env
