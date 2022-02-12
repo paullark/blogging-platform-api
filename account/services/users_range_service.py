@@ -24,17 +24,22 @@ def get_user_object(username: str) -> CustomUser:
 def get_filtered_user_list(username: str, filter_by: str) -> QuerySet[CustomUser]:
     """
     Получаем qs пользователей, в зависимости от фильтра
+    (список фильтров задаётся в settings.py)
     Значения filter_by:
         'subscriptions' - фильтровать по подпискам;
         'subscribers' - фильтровать по подписчикам;
         'all' - все пользователи.
     """
-    if filter_by == 'subscriptions':
-        user = get_user_object(username)
-        return user.subscriptions.prefetch_related('articles').all()
-    elif filter_by == 'subscribers':
-        user = get_user_object(username)
-        return user.subscribers.prefetch_related('articles').all()
+    if filter_by in settings.USER_FILTER_LIST:
+        if filter_by == 'subscriptions':
+            user = get_user_object(username)
+            return user.subscriptions.prefetch_related('articles').all()
+        elif filter_by == 'subscribers':
+            user = get_user_object(username)
+            return user.subscribers.prefetch_related('articles').all()
+        elif filter_by == 'all':
+            return CustomUser.objects.prefetch_related('articles').exclude(username=username)
+    LOGGER.warning(f'unknown filter {filter_by}')
     return CustomUser.objects.prefetch_related('articles').exclude(username=username)
 
 
@@ -66,10 +71,13 @@ def _get_sorted_user_list(user_list: QuerySet[CustomUser], order_by: str):
         'rating' - сортировать по рейтингу;
         'article_count' - сортировать по количеству постов.
     """
-    if order_by == 'rating':
-        return _get_order_by_rating(user_list)
-    elif order_by == 'article_count':
-        return _get_order_by_article_count(user_list)
+    if order_by in settings.USER_ORDER_LIST:
+        if order_by == 'article_count':
+            return _get_order_by_article_count(user_list)
+        if order_by == 'rating':
+            return _get_order_by_rating(user_list)
+    LOGGER.warning(f'unknown order {order_by}')
+    return _get_order_by_rating(user_list)
 
 
 def get_filtered_and_sorted_user_list(
