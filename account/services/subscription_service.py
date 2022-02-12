@@ -2,7 +2,6 @@ from .rating_service import UsersRating
 from .users_range_service import get_user_object
 from ..models import CustomUser, Subscription
 from django.conf import settings
-from django.db.models.query import QuerySet
 import logging.config
 
 
@@ -36,8 +35,3 @@ def subscribe_user(from_user: CustomUser, to_user_username: str, action: str) ->
                          f'Relation does not exist')
             return False
     return True
-
-
-def get_user_subscriptions(user: CustomUser) -> QuerySet[CustomUser]:
-    """Функция возвращает qs подписок, указанного пользователя"""
-    return user.subscriptions.all()

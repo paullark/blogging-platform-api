@@ -1,8 +1,8 @@
+from .services.view_mixins import PasswordsMatchValidationMixin
 from rest_framework import serializers
 from django.conf import settings
 from .models import CustomUser
-
-from .services.subscription_service import subscribe_user
+from rest_framework.exceptions import ValidationError
 import logging.config
 
 
@@ -48,34 +48,61 @@ class UserDetailSerializer(UserBaseSerializer):
 
     class Meta(UserBaseSerializer.Meta):
         fields = UserBaseSerializer.Meta.fields + [
-            'first_name',
-            'last_name',
-            'email',
-            'birth_date',
-            'date_joined',
-            'photo',
-            'subscription_count',
-            'subscriber_count'
+            'first_name', 'last_name', 'email', 'birth_date', 'date_joined',
+            'photo', 'subscription_count', 'subscriber_count'
         ]
 
 
-class UserCreateUpdateSerializer(serializers.ModelSerializer):
+class UserCreateSerializer(PasswordsMatchValidationMixin, serializers.ModelSerializer):
+    password2 = serializers.CharField(required=True,
+                                      label='Подтверждение пароля',
+                                      write_only=True)
+
     class Meta:
         model = CustomUser
         fields = [
-            'username', 'password', 'first_name', 'last_name', 'email', 'birth_date', 'photo'
+            'username', 'first_name', 'last_name', 'email',
+            'birth_date', 'photo', 'password', 'password2'
         ]
-        extra_kwargs = {'password': {'write_only': True}}
+        extra_kwargs = {
+            'password': {'write_only': True},
+        }
 
     def create(self, validated_data):
-        password = validated_data.pop('password', None)
-        user = CustomUser(**validated_data)
-        user.set_password(password)
-        user.save()
-        return user
+        password = validated_data.pop('password')
+        new_user = CustomUser(**validated_data)
+        new_user.set_password(password)
+        new_user.save()
+        return new_user
+
+
+class UserUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = [
+            'username', 'first_name', 'last_name', 'email', 'birth_date', 'photo'
+        ]
+
+
+class PasswordSetSerializer(PasswordsMatchValidationMixin, serializers.Serializer):
+    password = serializers.CharField(required=True,
+                                     write_only=True)
+    password2 = serializers.CharField(required=True,
+                                      write_only=True)
+
+    def update(self, instance, validate_data):
+        instance.set_password(validate_data.get('password'))
+        instance.save()
+        return instance
+
+
+class PasswordChangeSerializer(PasswordSetSerializer):
+    old_password = serializers.CharField(required=True,
+                                         write_only=True)
 
     def update(self, instance, validated_data):
-        password = validated_data.pop('password', None)
-        if password:
-            instance.set_password(password)
-        return super().update(instance, validated_data)
+        if not instance.check_password(validated_data.get('old_password')):
+            raise ValidationError('old password incorrect')
+        instance.set_password(validated_data.get('password'))
+        instance.save()
+        return instance

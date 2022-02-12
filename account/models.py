@@ -12,6 +12,7 @@ class CustomUser(AbstractUser):
     Стандартная пользовательская модель с
     дополнительными полями
     """
+    email = models.EmailField(max_length=50, unique=True)
     photo = models.ImageField(upload_to='accounts/photos/',
                               blank=True,
                               verbose_name='Фото')
