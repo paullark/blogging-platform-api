@@ -24,14 +24,11 @@ urlpatterns = [
          views.PasswordResetConfirm.as_view(),
          name='password_reset_confirm'),
 
-    path('profile/edit/',
-         views.ProfileEditView.as_view(),
-         name='profile_edit'),
     path('profile/edit/change-password/',
          views.PasswordChangeView.as_view(),
          name='password_change'),
     path('profile/<str:username>/',
-         views.ProfileView.as_view(),
+         views.ProfileDetailUpdateView.as_view(),
          name='profile'),
 
     path('user-list/',

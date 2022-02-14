@@ -1,6 +1,6 @@
 from .models import Article, Category, Comment
 from .services.article_content_service import get_text_preview_for_article
-from account.serializers import UserDetailSerializer
+from account.serializers import UserDetailUpdateSerializer
 from rest_framework import serializers
 
 
@@ -55,7 +55,7 @@ class ArticleListSerializer(ArticleBaseSerializer):
 
 
 class ArticleDetailSerializer(ArticleBaseSerializer):
-    author = UserDetailSerializer(read_only=True)
+    author = UserDetailUpdateSerializer(read_only=True)
     comments = CommentSerializer(many=True)
 
     class Meta(ArticleBaseSerializer.Meta):

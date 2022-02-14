@@ -1,6 +1,7 @@
+from .permissions import IsProfileOwnerOrReadOnly
 from .serializers import (
-    UserListSerializer, UserDetailSerializer, UserCreateSerializer,
-    UserUpdateSerializer, PasswordChangeSerializer, PasswordSetSerializer
+    UserListSerializer, UserDetailUpdateSerializer, UserCreateSerializer,
+    PasswordChangeSerializer, PasswordSetSerializer
 )
 from .services.auth_service import (
     send_confirm_password_reset_email, check_confirm_reset_data
@@ -22,20 +23,6 @@ class UserRegistrationView(generics.CreateAPIView):
     serializer_class = UserCreateSerializer
 
 
-class PasswordChangeView(generics.UpdateAPIView):
-    """Изменение пароля"""
-    permission_classes = (IsAuthenticated,)
-    serializer_class = PasswordChangeSerializer
-
-    def put(self, request):
-        serializer = self.serializer_class(instance=request.user,
-                                           data=request.data,
-                                           partial=True)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(status=status.HTTP_200_OK)
-
-
 class UserListView(generics.ListAPIView):
     """Отображение списка пользователей"""
     serializer_class = UserListSerializer
@@ -51,47 +38,29 @@ class UserListView(generics.ListAPIView):
         return users
 
 
-class ProfileView(generics.RetrieveAPIView):
-    """Отображение информации о пользователе"""
-    serializer_class = UserDetailSerializer
+class ProfileDetailUpdateView(generics.RetrieveUpdateAPIView):
+    """Отображение и изменение информации о пользователе"""
+    serializer_class = UserDetailUpdateSerializer
     lookup_field = 'username'
-    permission_classes = [IsAuthenticated]
+    permission_classes = (IsAuthenticated, IsProfileOwnerOrReadOnly)
 
     def get_object(self, queryset=None):
-        return get_user_object(self.kwargs[self.lookup_field])
+        user = get_user_object(self.kwargs[self.lookup_field])
+        self.check_object_permissions(self.request, user)
+        return user
 
 
-class ProfileEditView(APIView):
-    """Редактирование информации о пользователе"""
+class PasswordChangeView(generics.UpdateAPIView):
+    """Изменение пароля"""
     permission_classes = (IsAuthenticated,)
-    serializer_class = UserUpdateSerializer
+    serializer_class = PasswordChangeSerializer
 
-    def get(self, request):
-        serializer = self.serializer_class(request.user)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def put(self, request):
+    def patch(self, request, *args, **kwargs):
         serializer = self.serializer_class(instance=request.user,
-                                           data=request.data,
-                                           partial=True)
+                                           data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-class SubscriptionUserView(APIView):
-    """Создание или удаление подписки на пользователя"""
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request):
-        username = request.data.get('username')
-        action = request.data.get('action')
-        if username and action:
-            if subscribe_user(from_user=request.user,
-                              to_user_username=username,
-                              action=action):
-                return Response(status=201)
-        return Response(status=400)
+        return Response(status=status.HTTP_200_OK)
 
 
 class PasswordResetEmailView(APIView):
@@ -109,12 +78,26 @@ class PasswordResetConfirm(APIView):
     permission_classes = (AllowAny,)
     serializer_class = PasswordSetSerializer
 
-    def put(self, request, uidb64, token):
+    def patch(self, request, uidb64, token):
         if check_confirm_reset_data(uidb64, token):
             serializer = self.serializer_class(instance=request.user,
-                                               data=request.data,
-                                               partial=True)
+                                               data=request.data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(status=status.HTTP_200_OK)
         return Response({'error': 'token invalid'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class SubscriptionUserView(APIView):
+    """Создание или удаление подписки на пользователя"""
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        username = request.data.get('username')
+        action = request.data.get('action')
+        if username and action:
+            if subscribe_user(from_user=request.user,
+                              to_user_username=username,
+                              action=action):
+                return Response(status=201)
+        return Response(status=400)

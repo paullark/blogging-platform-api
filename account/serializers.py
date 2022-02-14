@@ -15,11 +15,13 @@ class UserBaseSerializer(serializers.ModelSerializer):
                                            read_only=True)
     article_count = serializers.IntegerField(source='articles.count',
                                              read_only=True)
-    is_subscription = serializers.SerializerMethodField('is_user_in_subscriptions')
+    is_subscription = serializers.SerializerMethodField('is_user_in_subscriptions',
+                                                        read_only=True)
 
     class Meta:
         model = CustomUser
         fields = ['id', 'username', 'user_rating', 'article_count', 'is_subscription']
+        read_only_fields = ['id']
 
     def is_user_in_subscriptions(self, user):
         request = self.context.get('request')
@@ -40,7 +42,7 @@ class UserListSerializer(UserBaseSerializer):
         fields = UserBaseSerializer.Meta.fields + ['url']
 
 
-class UserDetailSerializer(UserBaseSerializer):
+class UserDetailUpdateSerializer(UserBaseSerializer):
     subscription_count = serializers.IntegerField(source='subscriptions.count',
                                                   read_only=True)
     subscriber_count = serializers.IntegerField(source='subscribers.count',
@@ -51,6 +53,7 @@ class UserDetailSerializer(UserBaseSerializer):
             'first_name', 'last_name', 'email', 'birth_date', 'date_joined',
             'photo', 'subscription_count', 'subscriber_count'
         ]
+        read_only_fields = ['date_joined']
 
 
 class UserCreateSerializer(PasswordsMatchValidationMixin, serializers.ModelSerializer):
@@ -74,14 +77,6 @@ class UserCreateSerializer(PasswordsMatchValidationMixin, serializers.ModelSeria
         new_user.set_password(password)
         new_user.save()
         return new_user
-
-
-class UserUpdateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CustomUser
-        fields = [
-            'username', 'first_name', 'last_name', 'email', 'birth_date', 'photo'
-        ]
 
 
 class PasswordSetSerializer(PasswordsMatchValidationMixin, serializers.Serializer):
