@@ -1,43 +1,25 @@
+from .serializers import (
+    UserListSerializer, UserDetailSerializer, UserCreateSerializer,
+    UserUpdateSerializer, PasswordChangeSerializer, PasswordSetSerializer
+)
+from .services.auth_service import (
+    send_confirm_password_reset_email, check_confirm_reset_data
+)
 from .services.subscription_service import subscribe_user
 from .services.users_range_service import (
     get_filtered_and_sorted_user_list,
     get_user_object
 )
-from .services.auth_service import (
-    send_confirm_password_reset_email, check_confirm_reset_data
-)
 from rest_framework import generics, status
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from .serializers import (
-    UserListSerializer, UserDetailSerializer, UserCreateSerializer, UserUpdateSerializer,
-    PasswordChangeSerializer, PasswordSetSerializer
-)
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 
 class UserRegistrationView(generics.CreateAPIView):
     """Регистрация пользователя"""
     permission_classes = (AllowAny,)
     serializer_class = UserCreateSerializer
-
-
-class ProfileEditView(APIView):
-    """Редактирование информации о пользователе"""
-    permission_classes = (IsAuthenticated,)
-    serializer_class = UserUpdateSerializer
-
-    def get(self, request):
-        serializer = self.serializer_class(request.user)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def put(self, request):
-        serializer = self.serializer_class(instance=request.user,
-                                           data=request.data,
-                                           partial=True)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class PasswordChangeView(generics.UpdateAPIView):
@@ -57,7 +39,7 @@ class PasswordChangeView(generics.UpdateAPIView):
 class UserListView(generics.ListAPIView):
     """Отображение списка пользователей"""
     serializer_class = UserListSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
         filter_by = self.request.query_params.get('filter_by')
@@ -77,6 +59,24 @@ class ProfileView(generics.RetrieveAPIView):
 
     def get_object(self, queryset=None):
         return get_user_object(self.kwargs[self.lookup_field])
+
+
+class ProfileEditView(APIView):
+    """Редактирование информации о пользователе"""
+    permission_classes = (IsAuthenticated,)
+    serializer_class = UserUpdateSerializer
+
+    def get(self, request):
+        serializer = self.serializer_class(request.user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request):
+        serializer = self.serializer_class(instance=request.user,
+                                           data=request.data,
+                                           partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class SubscriptionUserView(APIView):

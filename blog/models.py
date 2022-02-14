@@ -1,3 +1,6 @@
+from .services.article_rating_service import (
+    ArticlesRating, ArticleViewCounter
+)
 from .services.utils import slugify
 from account.models import CustomUser
 from django.db import models
@@ -5,7 +8,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.conf import settings
 from django.urls import reverse
-from django.utils import timezone
 
 
 class Category(models.Model):
@@ -79,6 +81,12 @@ class Article(models.Model):
         return reverse(
             'blog:article_detail', args=[self.id]
         )
+
+    def get_article_rating(self):
+        return ArticlesRating().get_rating_by_id(self.id)
+
+    def get_article_views(self):
+        return ArticleViewCounter().get_article_view_count(self.id)
 
 
 class Content(models.Model):

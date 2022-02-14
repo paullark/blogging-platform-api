@@ -83,15 +83,18 @@ def _get_sorted_article_list(article_list: QuerySet[Article], order_by: str):
         'rating' - сортировать по рейтингу;
         'date' - сортировать по date.
     """
-    if order_by == 'rating':
-        return _get_order_by_rating(article_list)
-    # во всех остальных случаях - по дате
+    if order_by in settings.USER_ORDER_LIST:
+        if order_by == 'rating':
+            return _get_order_by_rating(article_list)
+        if order_by == 'date':
+            return _get_order_by_date(article_list)
+    LOGGER.warning(f'unknown order {order_by}')
     return _get_order_by_date(article_list)
 
 
 def get_filtered_and_sorted_article_list(
         username: str,
-        category_slug: str,
+        category_slug: str = None,
         filter_by: str = 'all',
         order_by: str = 'rating') -> QuerySet[Article]:
     """Вызывает функции фильтрации и сортировки постов"""

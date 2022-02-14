@@ -1,7 +1,7 @@
-from .services.view_mixins import PasswordsMatchValidationMixin
-from rest_framework import serializers
-from django.conf import settings
 from .models import CustomUser
+from .services.view_mixins import PasswordsMatchValidationMixin
+from django.conf import settings
+from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 import logging.config
 
@@ -11,8 +11,8 @@ LOGGER = logging.getLogger('account_logger')
 
 
 class UserBaseSerializer(serializers.ModelSerializer):
-    user_rating = serializers.CharField(source='get_user_rating',
-                                        read_only=True)
+    user_rating = serializers.IntegerField(source='get_user_rating',
+                                           read_only=True)
     article_count = serializers.IntegerField(source='articles.count',
                                              read_only=True)
     is_subscription = serializers.SerializerMethodField('is_user_in_subscriptions')
