@@ -11,7 +11,8 @@ from .models import Article, Comment, Category
 # from .services.article_like_service import like_article
 from .services.article_range_service import (
     get_filtered_and_sorted_article_list,
-    get_article_object
+    get_article_object,
+    ArticleAuthorCategoryFilter
 )
 # from .services.view_mixins import PaginatorMixin, ArticleEditMixin, ArticleAttrsMixin
 # from account.services.decorators import query_debugger
@@ -25,6 +26,7 @@ from .services.article_range_service import (
 # from django.urls import reverse_lazy
 
 from .serializers import ArticleListSerializer, CategorySerializer, ArticleDetailSerializer
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
@@ -40,16 +42,17 @@ class CategoryListView(generics.ListAPIView):
 class ArticleListView(generics.ListAPIView):
     serializer_class = ArticleListSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    filter_backends = (DjangoFilterBackend,)
 
     def get_queryset(self):
         filter_by = self.request.query_params.get('filter')
         order_by = self.request.query_params.get('order')
-        username = self.request.query_params.get('username')
-        category_slug = self.request.query_params.get('category')
-
-        articles = get_filtered_and_sorted_article_list(username or self.request.user.username,
-                                                        category_slug,
-                                                        filter_by, order_by)
+        # username = self.request.query_params.get('username')
+        # category_slug = self.request.query_params.get('category')
+        print(order_by)
+        articles = get_filtered_and_sorted_article_list(self.request.user.username,
+                                                        filter_by=filter_by, order_by=order_by)
+        print(articles)
         return articles
 
 

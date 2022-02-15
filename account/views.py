@@ -29,8 +29,8 @@ class UserListView(generics.ListAPIView):
     permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
-        filter_by = self.request.query_params.get('filter_by')
-        order_by = self.request.query_params.get('order_by')
+        filter_by = self.request.query_params.get('filter')
+        order_by = self.request.query_params.get('order')
         username = self.request.query_params.get('username')
 
         users = get_filtered_and_sorted_user_list(username or self.request.user.username,

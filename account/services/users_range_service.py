@@ -39,7 +39,7 @@ def get_filtered_user_list(username: str, filter_by: str) -> QuerySet[CustomUser
             return user.subscribers.prefetch_related('articles').all()
         elif filter_by == 'all':
             return CustomUser.objects.prefetch_related('articles').exclude(username=username)
-    LOGGER.warning(f'unknown filter {filter_by}')
+    LOGGER.error(f'unknown filter {filter_by}')
     return CustomUser.objects.prefetch_related('articles').exclude(username=username)
 
 
@@ -76,7 +76,7 @@ def _get_sorted_user_list(user_list: QuerySet[CustomUser], order_by: str):
             return _get_order_by_article_count(user_list)
         if order_by == 'rating':
             return _get_order_by_rating(user_list)
-    LOGGER.warning(f'unknown order {order_by}')
+    LOGGER.error(f'unknown order {order_by}')
     return _get_order_by_rating(user_list)
 
 
