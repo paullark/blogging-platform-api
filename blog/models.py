@@ -125,6 +125,9 @@ class Text(ModelNameMixin, models.Model):
         verbose_name = 'Текст статьи'
         verbose_name_plural = 'Тексты статьи'
 
+    def __str__(self):
+        return self.text
+
 
 class Image(ModelNameMixin, models.Model):
     image = models.ImageField(upload_to='articles/%Y/%m/%d',
@@ -134,6 +137,9 @@ class Image(ModelNameMixin, models.Model):
         verbose_name = 'Картинка статьи'
         verbose_name_plural = 'Картинки статьи'
 
+    def __str__(self):
+        return self.image.url
+
 
 class Video(ModelNameMixin, models.Model):
     url = models.URLField(verbose_name='URL видео')
@@ -141,6 +147,9 @@ class Video(ModelNameMixin, models.Model):
     class Meta:
         verbose_name = 'Видео статьи'
         verbose_name_plural = 'Видео статьи'
+
+    def __str__(self):
+        return self.url
 
 
 class Comment(models.Model):

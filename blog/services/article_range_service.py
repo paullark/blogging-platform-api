@@ -43,7 +43,7 @@ def _get_article_list_by_category(category_slug: str) -> QuerySet[Article]:
     return Article.published_manager.prefetch_related('users_like', 'comments').all()
 
 
-def get_filtered_article_list(username: str, category_slug: str, filter_by: str) -> QuerySet[Article]:
+def _get_filtered_article_list(username: str, category_slug: str, filter_by: str) -> QuerySet[Article]:
     """
     Получаем qs статей, в зависимости от категории и фильтра
     Значения filter_by:
@@ -53,17 +53,18 @@ def get_filtered_article_list(username: str, category_slug: str, filter_by: str)
         'draft' - свои черновики.
     """
     articles = _get_article_list_by_category(category_slug)
-
-    if filter_by in settings.ARTICLE_FILTER_LIST:
-        if filter_by == 'subscriptions':
-            subscription_user_list = get_filtered_user_list(username, filter_by)
-            return articles.filter(author__in=subscription_user_list)
-        # elif filter_by == 'publish':
-        #     return articles.filter(author__username=username)
-        # elif filter_by == 'draft':
-        #     return Article.objects.filter(author__username=username, status='draft')
-        return articles
-    LOGGER.error(f'unknown filter {filter_by}')
+    if username:
+        if filter_by in settings.ARTICLE_FILTER_LIST:
+            if filter_by == 'subscriptions':
+                subscription_user_list = get_filtered_user_list(username, filter_by)
+                return articles.filter(author__in=subscription_user_list)
+            elif filter_by == 'publish':
+                return articles.filter(author__username=username)
+            elif filter_by == 'draft':
+                return Article.objects.filter(author__username=username, status='draft')
+            return articles
+        LOGGER.error(f'unknown filter {filter_by}')
+        return articles.filter(author__username=username)
     return articles
 
 
@@ -88,7 +89,7 @@ def _get_order_by_date(article_list: QuerySet[Article]) -> QuerySet[Article]:
     return article_list.order_by('-published')
 
 
-def get_sorted_article_list(article_list: QuerySet[Article], order_by: str):
+def _get_sorted_article_list(article_list: QuerySet[Article], order_by: str):
     """
     Получаем отсортированный qs постов
     Значения order_by:
@@ -109,6 +110,10 @@ def get_filtered_and_sorted_article_list(
         filter_by: str = 'all',
         order_by: str = 'date') -> QuerySet[Article]:
     """Вызывает функции фильтрации и сортировки постов"""
-    articles = get_filtered_article_list(username, category_slug, filter_by)
+    articles = _get_filtered_article_list(username, category_slug, filter_by)
     articles = _get_sorted_article_list(articles, order_by)
     return articles
+
+
+# def get_user_drafts(user: CustomUser) -> QuerySet[Article]:
+#     return Article.objects.filter(author__username=username, status='draft')

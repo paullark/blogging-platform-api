@@ -151,8 +151,9 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
-    'DEFAULT_FILTER_BACKENDS': (
-        'django_filters.rest_framework.DjangoFilterBackend',
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer'
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 15,
@@ -219,16 +220,18 @@ ARTICLE_RATING_BY_ACTION = {
 
 ARTICLE_FILTER_LIST = {
     'all': 'Все',
-    'subscriptions': 'Подписки'
+    'subscriptions': 'Подписки',
+    'publish': 'Публикации',
+    'draft': 'Черновики'
 }
 ARTICLE_ORDER_LIST = {
     'rating': 'По рейтингу',
     'date': 'Последние'
 }
-USER_ARTICLE_STATUS_FILTER_LIST = {
-    'publish': 'Публикации',
-    'draft': 'Черновики'
-}
+# USER_ARTICLE_STATUS_FILTER_LIST = {
+#     'publish': 'Публикации',
+#     'draft': 'Черновики'
+# }
 USER_FILTER_LIST = {
     'all': 'Все',
     'subscriptions': 'Подписки',

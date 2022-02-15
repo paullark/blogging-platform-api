@@ -1,4 +1,4 @@
-from .models import Article, Category, Comment
+from .models import Article, Category, Comment, Content
 from .services.article_content_service import get_text_preview_for_article
 from account.serializers import UserDetailUpdateSerializer
 from rest_framework import serializers
@@ -37,7 +37,21 @@ class CommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        exclude = ['active', 'article']
+        exclude = ('active', 'article')
+        read_only_fields = ('id', 'created')
+
+
+class ContentObjectRelatedField(serializers.RelatedField):
+    def to_representation(self, value):
+        return value.__str__()
+
+
+class ContentSerializer(serializers.ModelSerializer):
+    content_object = ContentObjectRelatedField(read_only=True)
+
+    class Meta:
+        model = Content
+        fields = ('content_object',)
 
 
 class ArticleListSerializer(ArticleBaseSerializer):
@@ -56,7 +70,8 @@ class ArticleListSerializer(ArticleBaseSerializer):
 
 class ArticleDetailSerializer(ArticleBaseSerializer):
     author = UserDetailUpdateSerializer(read_only=True)
-    comments = CommentSerializer(many=True)
+    contents = ContentSerializer(many=True)
+    # comments = CommentSerializer(many=True)
 
     class Meta(ArticleBaseSerializer.Meta):
-        fields = ArticleBaseSerializer.Meta.fields + ['author', 'comments']
+        fields = ArticleBaseSerializer.Meta.fields + ['author', 'contents']
