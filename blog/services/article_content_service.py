@@ -38,24 +38,11 @@ def delete_article_content_by_id(content_id: int) -> None:
         raise Http404(f'Контент {content_id} не найден')
 
 
-def get_model_by_name(model_name: str) -> Union[Text, Image, Video, None]:
-    """Возвращает модель одного из типов контента (Text, Image, Video)"""
-    if model_name in settings.ARTICLE_CONTENT_TYPES:
-        try:
-            return ContentType.objects.get(app_label='blog',
-                                           model=model_name).model_class()
-        except ContentType.DoesNotExist:
-            LOGGER.error(f'model {model_name} not found')
-            return None
-    LOGGER.error(f'unknown model {model_name}')
-    return None
-
-
 def get_content_object_by_model_name_and_id(
         model_name: str,
         content_object_id: int) -> Union[Text, Image, Video]:
 
-    model = get_model_by_name(model_name)
+    model = _get_model_by_name(model_name)
     if model:
         try:
             return model.objects.get(id=content_object_id)
@@ -83,9 +70,8 @@ def delete_all_article_content(article_id: int) -> None:
     ARTICLES_RATING.clear_rating_by_id(object_id=article_id)
 
 
-def publish_article(article_id: int) -> bool:
+def publish_article(article: Article) -> bool:
     """Меняет статус статьи на "опубликовано", добавляет рейтинг пользователю"""
-    article = get_article_object(article_id)
     if article.status == 'draft':
         article.status = 'published'
         article.published = timezone.now()
@@ -101,3 +87,16 @@ def change_article_views(article_id: int) -> None:
     ArticleViewCounter().incr_view_count(article_id)
     ARTICLES_RATING.incr_or_decr_rating_by_id(action='view',
                                               object_id=article_id)
+
+
+def _get_model_by_name(model_name: str) -> Union[Text, Image, Video, None]:
+    """Возвращает модель одного из типов контента (Text, Image, Video)"""
+    if model_name in settings.ARTICLE_CONTENT_TYPES:
+        try:
+            return ContentType.objects.get(app_label='blog',
+                                           model=model_name).model_class()
+        except ContentType.DoesNotExist:
+            LOGGER.error(f'model {model_name} not found')
+            return None
+    LOGGER.error(f'unknown model {model_name}')
+    return None

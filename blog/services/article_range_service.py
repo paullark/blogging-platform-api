@@ -1,25 +1,14 @@
 from ..models import Article
 from .article_rating_service import ArticlesRating
 from account.services.users_range_service import get_filtered_user_list
-from account.models import CustomUser
 from django.conf import settings
-from django.db.models import Sum
 from django.db.models.query import QuerySet
 from django.http import Http404
-from django_filters import rest_framework as filters
 import logging.config
 
 
 logging.config.dictConfig(settings.LOGGING)
 LOGGER = logging.getLogger('blog_logger')
-
-
-class ArticleAuthorCategoryFilter(filters.FilterSet):
-    author = filters.CharFilter(field_name='author__username')
-
-    class Meta:
-        model = Article
-        fields = ['author']
 
 
 def get_article_object(article_id: int) -> Article:

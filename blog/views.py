@@ -23,7 +23,6 @@ from .serializers import (
 )
 from django.conf import settings
 from rest_framework import generics, status, viewsets, mixins
-from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -127,12 +126,18 @@ class LikeUnlikeView(APIView):
 
 
 class ArticlePublishView(APIView):
-    permission_classes = (IsDraftAuthor,)
+    """Публикация статьи"""
+    permission_classes = (IsPublishAuthorOrReadOnly,)
 
     def post(self, request, pk):
-        if publish_article(pk):
+        if publish_article(self.get_object(pk)):
             return Response(status=status.HTTP_200_OK)
         return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    def get_object(self, pk):
+        article = get_article_object(pk)
+        self.check_object_permissions(self.request, article)
+        return article
 
 
 class ContentCreateUpdateDeleteView(mixins.CreateModelMixin,

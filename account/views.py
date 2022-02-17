@@ -1,7 +1,8 @@
 from .permissions import IsProfileOwnerOrReadOnly
 from .serializers import (
-    UserListSerializer, UserDetailUpdateSerializer, UserCreateSerializer,
-    PasswordChangeSerializer, PasswordSetSerializer
+    PasswordChangeSerializer, PasswordSetSerializer,
+    UserDetailUpdateSerializer, UserCreateSerializer,
+    UserListSerializer
 )
 from .services.auth_service import (
     send_confirm_password_reset_email, check_confirm_reset_data
@@ -98,5 +99,5 @@ class SubscriptionUserView(APIView):
             if subscribe_user(from_user=request.user,
                               to_user_username=username,
                               action=action):
-                return Response(status=201)
-        return Response(status=400)
+                return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_400_BAD_REQUEST)

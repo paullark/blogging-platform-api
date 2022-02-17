@@ -1,5 +1,5 @@
 from .models import CustomUser
-from .services.view_mixins import PasswordsMatchValidationMixin
+from .services.mixins import PasswordsMatchValidationMixin
 from django.conf import settings
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -24,6 +24,7 @@ class UserBaseSerializer(serializers.ModelSerializer):
         read_only_fields = ['id']
 
     def is_user_in_subscriptions(self, user):
+        """Проверяет, находится ли пользователь в подписках"""
         request = self.context.get('request')
         try:
             my_user = request.user
