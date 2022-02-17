@@ -35,6 +35,7 @@ urlpatterns = [
          views.UserListView.as_view(),
          name='user_list'),
 
-    path('subscribe/', views.SubscriptionUserView.as_view(),
+    path('profile/<str:username>/subscribe/',
+         views.SubscriptionUserView.as_view(),
          name='subscribe_to_user'),
 ]

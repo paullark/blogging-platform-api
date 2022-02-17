@@ -1,6 +1,6 @@
+from ..models import CustomUser, Subscription
 from .rating_service import UsersRating
 from .users_range_service import get_user_object
-from ..models import CustomUser, Subscription
 from django.conf import settings
 import logging.config
 

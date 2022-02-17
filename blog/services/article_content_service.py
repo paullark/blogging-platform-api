@@ -1,12 +1,10 @@
 from ..models import Article, Content, Text, Image, Video
 from .article_range_service import get_article_object
-from .article_rating_service import ArticlesRating
+from .article_rating_service import ArticlesRating, ArticleViewCounter
 from account.services.rating_service import UsersRating
-from account.services.decorators import query_debugger
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.http import Http404
-from django.template.loader import render_to_string
 from django.utils import timezone
 from typing import Union
 import logging.config
@@ -21,8 +19,8 @@ LOGGER = logging.getLogger('blog_logger')
 
 def get_text_preview_for_article(article: Article) -> str:
     """Функция возвращает текстовое превью статьи или пустую строку"""
-    preview_content = article.contents.filter(content_type__model='text').first()
     try:
+        preview_content = article.contents.filter(content_type__model='text').first()
         return preview_content.content_object.text
     except AttributeError:
         LOGGER.warning(f'article {article.id}, text not found')
@@ -33,29 +31,11 @@ def delete_article_content_by_id(content_id: int) -> None:
     """Функция удаляет контент и его содержание"""
     try:
         content = Content.objects.get(id=content_id)
+        content.content_object.delete()
+        content.delete()
     except Content.DoesNotExist:
         LOGGER.error(f'content {content_id} not found')
         raise Http404(f'Контент {content_id} не найден')
-    content.content_object.delete()
-    content.delete()
-
-
-@query_debugger
-def get_article_render_contents(article: Article) -> list[tuple]:
-    """
-    Функция генерирует шаблон для каждого контент-объекта статьи,
-    возвращает список кортежей.
-    В кортеж входят SafeString и объект контента
-    """
-    contents = []
-    for content in article.contents.prefetch_related('content_object').all():
-        content_object = content.content_object
-        if content_object:
-            model_name = content_object.get_model_name()
-            content_template_response = render_to_string(f'articles/content/{model_name}.html',
-                                                         {'content_object': content_object})
-            contents.append((content_template_response, content))
-    return contents
 
 
 def get_model_by_name(model_name: str) -> Union[Text, Image, Video, None]:
@@ -89,7 +69,7 @@ def create_content(article: Article, content_object: Union[Text, Image, Video]) 
     try:
         Content.objects.create(article=article, content_object=content_object)
     except Exception as e:
-        LOGGER.warning(f'create content error', e)
+        LOGGER.error(f'create content error', e)
 
 
 def delete_all_article_content(article_id: int) -> None:
@@ -103,11 +83,21 @@ def delete_all_article_content(article_id: int) -> None:
     ARTICLES_RATING.clear_rating_by_id(object_id=article_id)
 
 
-def publish_article(article_id: int) -> None:
+def publish_article(article_id: int) -> bool:
     """Меняет статус статьи на "опубликовано", добавляет рейтинг пользователю"""
     article = get_article_object(article_id)
-    article.status = 'published'
-    article.published = timezone.now()
-    article.save()
-    USERS_RATING.incr_or_decr_rating_by_id(action='create_article',
-                                           object_id=article.author.id)
+    if article.status == 'draft':
+        article.status = 'published'
+        article.published = timezone.now()
+        article.save()
+        USERS_RATING.incr_or_decr_rating_by_id(action='create_article',
+                                               object_id=article.author.id)
+        return True
+    return False
+
+
+def change_article_views(article_id: int) -> None:
+    """Увеличивает количество просмотров и рейтинг статьи на 1"""
+    ArticleViewCounter().incr_view_count(article_id)
+    ARTICLES_RATING.incr_or_decr_rating_by_id(action='view',
+                                              object_id=article_id)

@@ -215,7 +215,8 @@ ARTICLE_RATING_BY_ACTION = {
     'view': 1,
     'like': 3,
     'unlike': -3,
-    'comment': 5
+    'add_comment': 5,
+    'delete_comment': -5
 }
 
 ARTICLE_FILTER_LIST = {

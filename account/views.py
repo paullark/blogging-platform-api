@@ -92,10 +92,9 @@ class SubscriptionUserView(APIView):
     """Создание или удаление подписки на пользователя"""
     permission_classes = [IsAuthenticated]
 
-    def post(self, request):
-        username = request.data.get('username')
+    def post(self, request, username):
         action = request.data.get('action')
-        if username and action:
+        if action:
             if subscribe_user(from_user=request.user,
                               to_user_username=username,
                               action=action):

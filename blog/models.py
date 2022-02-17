@@ -54,7 +54,7 @@ class Article(models.Model):
                                       blank=True)
     created = models.DateTimeField(auto_now=True)
     updated = models.DateTimeField(auto_now_add=True)
-    published = models.DateTimeField(blank=True)
+    published = models.DateTimeField(null=True)
     status = models.CharField(max_length=10,
                               choices=STATUS_CHOICES,
                               default='draft')
@@ -79,7 +79,7 @@ class Article(models.Model):
 
     def get_absolute_url(self):
         return reverse(
-            'blog:article_detail', args=[self.id]
+            'blog:article_detail_update_delete', args=[self.id]
         )
 
     def get_article_rating(self):
@@ -106,6 +106,7 @@ class Content(models.Model):
     content_object = GenericForeignKey('content_type', 'object_id')
 
     class Meta:
+        ordering = ['id']
         verbose_name = 'Контент'
         verbose_name_plural = 'Контент'
 
