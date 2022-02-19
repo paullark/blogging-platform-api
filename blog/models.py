@@ -79,7 +79,7 @@ class Article(models.Model):
 
     def get_absolute_url(self):
         return reverse(
-            'blog:article_detail_update_delete', args=[self.id]
+            'blog:article-detail', args=[self.id]
         )
 
     def get_article_rating(self):

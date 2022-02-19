@@ -5,24 +5,17 @@ from . import views
 app_name = 'blog'
 
 router = DefaultRouter()
+router.register(r'articles',
+                views.ArticleView,
+                basename='article')
 router.register(r'articles/(?P<article_id>\d+)/comments',
-                views.CommentCRUDListView,
+                views.CommentView,
                 basename='comment')
 
 urlpatterns = [
     path('categories/',
          views.CategoryListView.as_view(),
          name='category_list'),
-
-    path('articles/',
-         views.ArticleListCreateView.as_view(),
-         name='article_list_create'),
-    path('articles/<int:pk>/',
-         views.ArticleUpdateDeleteDetailView.as_view(),
-         name='article_detail_update_delete'),
-    path('articles/<int:pk>/publish/',
-         views.ArticlePublishView.as_view(),
-         name='article_publish'),
 
     path('articles/<int:article_id>/contents/<str:content_type>/',
          views.ContentCreateUpdateDeleteView.as_view({'post': 'create'}),

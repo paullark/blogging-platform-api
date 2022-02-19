@@ -24,6 +24,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class ContentObjectRelatedField(serializers.RelatedField):
+    """Поле для вывода контента разного типа (Text, Image, Video)"""
     def to_representation(self, value):
         return value.__str__()
 
@@ -41,6 +42,10 @@ class ContentSerializer(serializers.ModelSerializer):
 
 class ContentObjectBaseSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
+        """
+        После создания объекта контента, связывает его
+        со статьёй через модель Content
+        """
         instance = super().create(validated_data)
         article = self.context.get('view').article
         create_content(article=article,

@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
+    'drf_yasg',
 
     'blog.apps.BlogConfig'
 ]
@@ -155,7 +156,7 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.BrowsableAPIRenderer'
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-    'PAGE_SIZE': 15,
+    'PAGE_SIZE': 10,
 }
 
 SIMPLE_JWT = {
@@ -224,19 +225,18 @@ ARTICLE_FILTER_LIST = {
     'publish': 'Публикации',
     'draft': 'Черновики'
 }
+
 ARTICLE_ORDER_LIST = {
     'rating': 'По рейтингу',
     'date': 'Последние'
 }
-# USER_ARTICLE_STATUS_FILTER_LIST = {
-#     'publish': 'Публикации',
-#     'draft': 'Черновики'
-# }
+
 USER_FILTER_LIST = {
     'all': 'Все',
     'subscriptions': 'Подписки',
     'subscribers': 'Подписчики'
 }
+
 USER_ORDER_LIST = {
     'rating': 'По рейтингу',
     'article_count': 'По количеству постов'

@@ -35,9 +35,8 @@ class IsDraftAuthor(permissions.BasePermission):
 
 class IsCommentAuthorOrReadOnly(permissions.BasePermission):
     """
-    Разрешение на создание комментариев только к опубликованным
-    статьям, изменение
-    только для авторов и на чтение для всех пользователей
+    Разрешение на создание комментариев только к опубликованным статьям,
+    изменение для автора комментария, чтение для всех пользователей
     """
     message = 'Edit allowed for author only'
 

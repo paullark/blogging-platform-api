@@ -34,21 +34,27 @@ LOGGER = logging.getLogger('blog_logger')
 
 
 class CategoryListView(generics.ListAPIView):
+    """Отображение списка категорий"""
     serializer_class = CategorySerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = Category.objects.all()
 
 
-class ArticleListCreateView(generics.ListCreateAPIView):
+class ArticleView(viewsets.ModelViewSet):
+    """Отображение списка статей и создание новых"""
     permission_classes = (
         IsPublishAuthorOrReadOnly,
-        IsDraftAuthor
+        IsDraftAuthor,
+        IsAuthenticatedOrReadOnly
     )
 
     def get_serializer_class(self):
-        if self.request.method == 'POST':
+        if self.action == 'create':
             return ArticleCreateSerializer
-        return ArticleListSerializer
+        elif self.action == 'list':
+            return ArticleListSerializer
+        else:
+            return ArticleDetailSerializer
 
     def get_queryset(self):
         filter_by = self.request.query_params.get('filter')
@@ -63,17 +69,6 @@ class ArticleListCreateView(generics.ListCreateAPIView):
         )
         return articles
 
-    def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
-
-
-class ArticleUpdateDeleteDetailView(generics.RetrieveUpdateDestroyAPIView):
-    serializer_class = ArticleDetailSerializer
-    permission_classes = (
-        IsPublishAuthorOrReadOnly,
-        IsDraftAuthor
-    )
-
     def get_object(self, queryset=None):
         article = get_article_object(self.kwargs.get('pk'))
         self.check_object_permissions(self.request, article)
@@ -81,12 +76,15 @@ class ArticleUpdateDeleteDetailView(generics.RetrieveUpdateDestroyAPIView):
             change_article_views(article.id)
         return article
 
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
     def perform_destroy(self, instance):
         delete_all_article_content(instance.id)
         instance.delete()
 
 
-class CommentCRUDListView(viewsets.ModelViewSet):
+class CommentView(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
     permission_classes = (
         IsCommentAuthorOrReadOnly,
@@ -100,7 +98,10 @@ class CommentCRUDListView(viewsets.ModelViewSet):
         return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
-        return self.article.comments.all()
+        try:
+            return self.article.comments.all()
+        except AttributeError:
+            LOGGER.error(f'article not found')
 
     def perform_create(self, serializer):
         self.rating.incr_or_decr_rating_by_id(action='add_comment',
