@@ -41,7 +41,10 @@ class CategoryListView(generics.ListAPIView):
 
 
 class ArticleView(viewsets.ModelViewSet):
-    """Отображение списка статей и создание новых"""
+    """
+    Отображение списка статей, детализация, создание,
+    изменение, удаление статьи
+    """
     permission_classes = (
         IsPublishAuthorOrReadOnly,
         IsDraftAuthor,
@@ -85,6 +88,7 @@ class ArticleView(viewsets.ModelViewSet):
 
 
 class CommentView(viewsets.ModelViewSet):
+    """Создание, изменение, удаление и отображение списка комментариев"""
     serializer_class = CommentSerializer
     permission_classes = (
         IsCommentAuthorOrReadOnly,

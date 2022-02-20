@@ -5,8 +5,7 @@ from . import views
 app_name = 'blog'
 
 router = DefaultRouter()
-router.register(r'articles',
-                views.ArticleView,
+router.register(r'articles', views.ArticleView,
                 basename='article')
 router.register(r'articles/(?P<article_id>\d+)/comments',
                 views.CommentView,
