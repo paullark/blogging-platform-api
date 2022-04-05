@@ -12,6 +12,7 @@ def send_confirm_password_reset_email(request: HttpRequest) -> int:
     """
     Функция отправляет email со ссылкой, подтверждающей смену пароля.
     Ссылка включает закодированное имя пользователя и токен
+    test
     """
     username = request.data.get('username')
     user = get_user_object(username)
