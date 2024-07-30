@@ -8,7 +8,7 @@ import logging.config
 
 
 logging.config.dictConfig(settings.LOGGING)
-LOGGER = logging.getLogger('blog_logger')
+LOGGER = logging.getLogger("blog_logger")
 
 
 def get_article_object(article_id: int) -> Article:
@@ -16,24 +16,26 @@ def get_article_object(article_id: int) -> Article:
     try:
         article = Article.objects.get(id=article_id)
     except Article.DoesNotExist:
-        LOGGER.error(f'article {article_id} not found')
-        raise Http404(f'Пост {article_id} не найден')
+        LOGGER.error(f"article {article_id} not found")
+        raise Http404(f"Пост {article_id} не найден")
     return article
 
 
-def get_filtered_and_sorted_article_list(username: str,
-                                         category_slug: str = None,
-                                         filter_by: str = 'all',
-                                         order_by: str = 'date') -> QuerySet[Article]:
+def get_filtered_and_sorted_article_list(
+    username: str,
+    category_slug: str = None,
+    filter_by: str = "all",
+    order_by: str = "date",
+) -> QuerySet[Article]:
     """Вызывает функции фильтрации и сортировки постов"""
     articles = _get_filtered_article_list(username, category_slug, filter_by)
     articles = _get_sorted_article_list(articles, order_by)
     return articles
 
 
-def _get_filtered_article_list(username: str,
-                               category_slug: str,
-                               filter_by: str) -> QuerySet[Article]:
+def _get_filtered_article_list(
+    username: str, category_slug: str, filter_by: str
+) -> QuerySet[Article]:
     """
     Получаем qs статей, в зависимости от категории и фильтра
     Значения filter_by:
@@ -45,15 +47,15 @@ def _get_filtered_article_list(username: str,
     articles = _get_article_list_by_category(category_slug)
     if username:
         if filter_by in settings.ARTICLE_FILTER_LIST:
-            if filter_by == 'subscriptions':
+            if filter_by == "subscriptions":
                 subscription_user_list = get_filtered_user_list(username, filter_by)
                 return articles.filter(author__in=subscription_user_list)
-            elif filter_by == 'publish':
+            elif filter_by == "publish":
                 return articles.filter(author__username=username)
-            elif filter_by == 'draft':
-                return Article.objects.filter(author__username=username, status='draft')
+            elif filter_by == "draft":
+                return Article.objects.filter(author__username=username, status="draft")
             return articles
-        LOGGER.error(f'unknown filter {filter_by}')
+        LOGGER.error(f"unknown filter {filter_by}")
         return articles.filter(author__username=username)
     return articles
 
@@ -64,9 +66,10 @@ def _get_article_list_by_category(category_slug: str) -> QuerySet[Article]:
     Если категория не задана, возвращает все посты
     """
     if category_slug:
-        return Article.published_manager.prefetch_related('users_like', 'comments')\
-            .filter(category__slug=category_slug)
-    return Article.published_manager.prefetch_related('users_like', 'comments').all()
+        return Article.published_manager.prefetch_related(
+            "users_like", "comments"
+        ).filter(category__slug=category_slug)
+    return Article.published_manager.prefetch_related("users_like", "comments").all()
 
 
 def _get_sorted_article_list(article_list: QuerySet[Article], order_by: str):
@@ -77,10 +80,10 @@ def _get_sorted_article_list(article_list: QuerySet[Article], order_by: str):
         'date' - сортировать по date.
     """
     if order_by in settings.ARTICLE_ORDER_LIST:
-        if order_by == 'rating':
+        if order_by == "rating":
             return _get_order_by_rating(article_list)
         return _get_order_by_date(article_list)
-    LOGGER.error(f'unknown order {order_by}')
+    LOGGER.error(f"unknown order {order_by}")
     return _get_order_by_date(article_list)
 
 
@@ -96,10 +99,12 @@ def _get_order_by_rating(article_list: QuerySet[Article]) -> list:
             key=lambda article: articles_sorted_by_rating_ids.index(article.id)
         )
     except ValueError:
-        LOGGER.error(f'Rating sort error of article list {article_list}. Some articles have not rating')
+        LOGGER.error(
+            f"Rating sort error of article list {article_list}. Some articles have not rating"
+        )
     return article_list
 
 
 def _get_order_by_date(article_list: QuerySet[Article]) -> QuerySet[Article]:
     """Возвращает список постов, отсортированный по дате"""
-    return article_list.order_by('-published')
+    return article_list.order_by("-published")

@@ -4,16 +4,18 @@ from django.conf import settings
 
 class ArticlesRating(RatingBase):
     """Класс для подсчёта рейтинга постов"""
+
     rating_by_action = settings.ARTICLE_RATING_BY_ACTION
-    redis_key = 'article_rating'
+    redis_key = "article_rating"
 
 
 class ArticleViewCounter:
     """Класс для подсчёта количества постов"""
+
     @staticmethod
     def _get_article_key(article_id: int) -> str:
         """Получение ключа по id поста"""
-        return f'article:{article_id}:id'
+        return f"article:{article_id}:id"
 
     def incr_view_count(self, article_id: int) -> None:
         """Увеличение количества просмотров на 1"""

@@ -6,9 +6,9 @@ from django.conf import settings
 from django.views.generic import TemplateView
 
 urlpatterns = [
-    path('api/accounts/', include('account.urls')),
-    path('api/blog/', include('blog.urls', namespace='blog')),
-    path('admin/', admin.site.urls),
+    path("api/accounts/", include("account.urls")),
+    path("api/blog/", include("blog.urls", namespace="blog")),
+    path("admin/", admin.site.urls),
 ]
 
 urlpatterns += yasg_urlpatterns

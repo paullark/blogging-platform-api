@@ -7,4 +7,4 @@ def slugify(string):
     Переопределяет django_slugify,
     чтобы можно было использовать кириллицу
     """
-    return django_slugify(''.join(settings.ALPHABET.get(w, w) for w in string.lower()))
+    return django_slugify("".join(settings.ALPHABET.get(w, w) for w in string.lower()))

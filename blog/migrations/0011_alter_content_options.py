@@ -6,12 +6,16 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('blog', '0010_alter_content_options'),
+        ("blog", "0010_alter_content_options"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='content',
-            options={'ordering': ['id'], 'verbose_name': 'Контент', 'verbose_name_plural': 'Контент'},
+            name="content",
+            options={
+                "ordering": ["id"],
+                "verbose_name": "Контент",
+                "verbose_name_plural": "Контент",
+            },
         ),
     ]
