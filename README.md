@@ -43,7 +43,7 @@ python -m venv <имя окружения>
 
 #### 4) Установить зависимости
 ```
-pip install -r requirements.txt
+poetry install
 ```
 #### 5) Создать базу данных PostgreSQL
 #### 6) Запустить сервер Redis
