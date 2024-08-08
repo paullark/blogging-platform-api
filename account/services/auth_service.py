@@ -13,18 +13,23 @@ def send_confirm_password_reset_email(request: HttpRequest) -> int:
     Функция отправляет email со ссылкой, подтверждающей смену пароля.
     Ссылка включает закодированное имя пользователя и токен
     """
-    username = request.data.get('username')
+    username = request.data.get("username")
     user = get_user_object(username)
     if user:
-        confirm_password_reset_url = _get_confirm_reset_url(request,
-                                                            *_get_uid_and_token(user))
-        confirm_email_theme = 'Сброс пароля на blogging-platform'
-        confirm_email_body = f'Для сброса пароля к аккаунту {username} ' \
-                             f'используйте ссылку: {confirm_password_reset_url}'
-        return send_mail(subject=confirm_email_theme,
-                         message=confirm_email_body,
-                         from_email='next_one_blog@polarmail.com',
-                         recipient_list=[user.email])
+        confirm_password_reset_url = _get_confirm_reset_url(
+            request, *_get_uid_and_token(user)
+        )
+        confirm_email_theme = "Сброс пароля на blogging-platform"
+        confirm_email_body = (
+            f"Для сброса пароля к аккаунту {username} "
+            f"используйте ссылку: {confirm_password_reset_url}"
+        )
+        return send_mail(
+            subject=confirm_email_theme,
+            message=confirm_email_body,
+            from_email="next_one_blog@polarmail.com",
+            recipient_list=[user.email],
+        )
 
 
 def check_confirm_reset_data(uidb64: str, token: str) -> bool:
@@ -45,8 +50,7 @@ def _get_uid_and_token(user: CustomUser) -> tuple[str, str]:
 def _get_confirm_reset_url(request: HttpRequest, uidb64: str, token: str) -> str:
     """Генерация ссылки"""
     return request.build_absolute_uri(
-            reverse_lazy('password_reset_confirm', kwargs={
-                'uidb64': uidb64,
-                'token': token
-            })
+        reverse_lazy(
+            "password_reset_confirm", kwargs={"uidb64": uidb64, "token": token}
+        )
     )

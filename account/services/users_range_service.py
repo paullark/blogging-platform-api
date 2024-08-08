@@ -8,7 +8,7 @@ import logging.config
 
 
 logging.config.dictConfig(settings.LOGGING)
-LOGGER = logging.getLogger('account_logger')
+LOGGER = logging.getLogger("account_logger")
 
 
 def get_user_object(username: str) -> CustomUser:
@@ -16,8 +16,8 @@ def get_user_object(username: str) -> CustomUser:
     try:
         user = CustomUser.objects.get(username=username)
     except CustomUser.DoesNotExist:
-        LOGGER.error(f'User {username} not found')
-        raise Http404(f'Пользователь {username} не найден')
+        LOGGER.error(f"User {username} not found")
+        raise Http404(f"Пользователь {username} не найден")
     return user
 
 
@@ -31,16 +31,18 @@ def get_filtered_user_list(username: str, filter_by: str) -> QuerySet[CustomUser
         'all' - все пользователи.
     """
     if filter_by in settings.USER_FILTER_LIST:
-        if filter_by == 'subscriptions':
+        if filter_by == "subscriptions":
             user = get_user_object(username)
-            return user.subscriptions.prefetch_related('articles').all()
-        elif filter_by == 'subscribers':
+            return user.subscriptions.prefetch_related("articles").all()
+        elif filter_by == "subscribers":
             user = get_user_object(username)
-            return user.subscribers.prefetch_related('articles').all()
-        elif filter_by == 'all':
-            return CustomUser.objects.prefetch_related('articles').exclude(username=username)
-    LOGGER.error(f'unknown filter {filter_by}')
-    return CustomUser.objects.prefetch_related('articles').exclude(username=username)
+            return user.subscribers.prefetch_related("articles").all()
+        elif filter_by == "all":
+            return CustomUser.objects.prefetch_related("articles").exclude(
+                username=username
+            )
+    LOGGER.error(f"unknown filter {filter_by}")
+    return CustomUser.objects.prefetch_related("articles").exclude(username=username)
 
 
 def _get_order_by_rating(user_list: QuerySet[CustomUser]) -> list:
@@ -51,17 +53,21 @@ def _get_order_by_rating(user_list: QuerySet[CustomUser]) -> list:
         int(user_id) for user_id in rating.get_range_list_by_rating()
     ]
     try:
-        user_list.sort(
-            key=lambda user: users_sorted_by_rating_ids.index(user.id)
-        )
+        user_list.sort(key=lambda user: users_sorted_by_rating_ids.index(user.id))
     except ValueError as e:
-        LOGGER.warning(f'Rating sort error of user list {user_list}. Some users have not rating')
+        LOGGER.warning(
+            f"Rating sort error of user list {user_list}. Some users have not rating"
+        )
     return user_list
 
 
-def _get_order_by_article_count(user_list: QuerySet[CustomUser]) -> QuerySet[CustomUser]:
+def _get_order_by_article_count(
+    user_list: QuerySet[CustomUser],
+) -> QuerySet[CustomUser]:
     """Возвращает список пользователей, отсортированный по количеству постов"""
-    return user_list.annotate(articles_count=Count('articles')).order_by('-articles_count')
+    return user_list.annotate(articles_count=Count("articles")).order_by(
+        "-articles_count"
+    )
 
 
 def _get_sorted_user_list(user_list: QuerySet[CustomUser], order_by: str):
@@ -72,18 +78,17 @@ def _get_sorted_user_list(user_list: QuerySet[CustomUser], order_by: str):
         'article_count' - сортировать по количеству постов.
     """
     if order_by in settings.USER_ORDER_LIST:
-        if order_by == 'article_count':
+        if order_by == "article_count":
             return _get_order_by_article_count(user_list)
-        if order_by == 'rating':
+        if order_by == "rating":
             return _get_order_by_rating(user_list)
-    LOGGER.error(f'unknown order {order_by}')
+    LOGGER.error(f"unknown order {order_by}")
     return _get_order_by_rating(user_list)
 
 
 def get_filtered_and_sorted_user_list(
-        username: str,
-        filter_by: str = 'all',
-        order_by: str = 'rating') -> QuerySet[CustomUser]:
+    username: str, filter_by: str = "all", order_by: str = "rating"
+) -> QuerySet[CustomUser]:
     """Вызывает функции фильтрации и сортировки пользователей"""
     users = get_filtered_user_list(username, filter_by)
     return _get_sorted_user_list(users, order_by)

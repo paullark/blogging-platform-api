@@ -14,115 +14,249 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('contenttypes', '0002_remove_content_type_name'),
+        ("contenttypes", "0002_remove_content_type_name"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Article',
+            name="Article",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=200, verbose_name='Название')),
-                ('slug', models.SlugField(max_length=200)),
-                ('preview_image', models.ImageField(blank=True, upload_to='articles/%Y/%m/%d', verbose_name='Изображение')),
-                ('created', models.DateTimeField(auto_now=True)),
-                ('updated', models.DateTimeField(auto_now_add=True)),
-                ('published', models.DateTimeField(default=datetime.datetime(2022, 2, 10, 11, 20, 10, 730669, tzinfo=utc))),
-                ('status', models.CharField(choices=[('draft', 'Черновик'), ('published', 'Опубликовано')], default='draft', max_length=10)),
-                ('author', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='articles', to=settings.AUTH_USER_MODEL, verbose_name='Автор')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("title", models.CharField(max_length=200, verbose_name="Название")),
+                ("slug", models.SlugField(max_length=200)),
+                (
+                    "preview_image",
+                    models.ImageField(
+                        blank=True,
+                        upload_to="articles/%Y/%m/%d",
+                        verbose_name="Изображение",
+                    ),
+                ),
+                ("created", models.DateTimeField(auto_now=True)),
+                ("updated", models.DateTimeField(auto_now_add=True)),
+                (
+                    "published",
+                    models.DateTimeField(
+                        default=datetime.datetime(
+                            2022, 2, 10, 11, 20, 10, 730669, tzinfo=utc
+                        )
+                    ),
+                ),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[("draft", "Черновик"), ("published", "Опубликовано")],
+                        default="draft",
+                        max_length=10,
+                    ),
+                ),
+                (
+                    "author",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="articles",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="Автор",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Пост',
-                'verbose_name_plural': 'Посты',
-                'ordering': ['-published'],
+                "verbose_name": "Пост",
+                "verbose_name_plural": "Посты",
+                "ordering": ["-published"],
             },
         ),
         migrations.CreateModel(
-            name='Category',
+            name="Category",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=200, verbose_name='Наименование')),
-                ('slug', models.SlugField(max_length=200)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "title",
+                    models.CharField(max_length=200, verbose_name="Наименование"),
+                ),
+                ("slug", models.SlugField(max_length=200)),
             ],
             options={
-                'verbose_name': 'Категория',
-                'verbose_name_plural': 'Категории',
-                'ordering': ['title'],
+                "verbose_name": "Категория",
+                "verbose_name_plural": "Категории",
+                "ordering": ["title"],
             },
         ),
         migrations.CreateModel(
-            name='Image',
+            name="Image",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('image', models.ImageField(upload_to='articles/%Y/%m/%d', verbose_name='Изображение')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "image",
+                    models.ImageField(
+                        upload_to="articles/%Y/%m/%d", verbose_name="Изображение"
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Картинка статьи',
-                'verbose_name_plural': 'Картинки статьи',
+                "verbose_name": "Картинка статьи",
+                "verbose_name_plural": "Картинки статьи",
             },
             bases=(blog.models.ModelNameMixin, models.Model),
         ),
         migrations.CreateModel(
-            name='Text',
+            name="Text",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('text', models.TextField(verbose_name='Текст')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("text", models.TextField(verbose_name="Текст")),
             ],
             options={
-                'verbose_name': 'Текст статьи',
-                'verbose_name_plural': 'Тексты статьи',
+                "verbose_name": "Текст статьи",
+                "verbose_name_plural": "Тексты статьи",
             },
             bases=(blog.models.ModelNameMixin, models.Model),
         ),
         migrations.CreateModel(
-            name='Video',
+            name="Video",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('url', models.URLField(verbose_name='URL видео')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("url", models.URLField(verbose_name="URL видео")),
             ],
             options={
-                'verbose_name': 'Видео статьи',
-                'verbose_name_plural': 'Видео статьи',
+                "verbose_name": "Видео статьи",
+                "verbose_name_plural": "Видео статьи",
             },
             bases=(blog.models.ModelNameMixin, models.Model),
         ),
         migrations.CreateModel(
-            name='Content',
+            name="Content",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('object_id', models.PositiveIntegerField()),
-                ('article', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='contents', to='blog.article', verbose_name='Статья')),
-                ('content_type', models.ForeignKey(limit_choices_to={'model__in': ('text', 'image', 'video')}, on_delete=django.db.models.deletion.CASCADE, to='contenttypes.contenttype')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("object_id", models.PositiveIntegerField()),
+                (
+                    "article",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="contents",
+                        to="blog.article",
+                        verbose_name="Статья",
+                    ),
+                ),
+                (
+                    "content_type",
+                    models.ForeignKey(
+                        limit_choices_to={"model__in": ("text", "image", "video")},
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="contenttypes.contenttype",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Контент',
-                'verbose_name_plural': 'Контент',
+                "verbose_name": "Контент",
+                "verbose_name_plural": "Контент",
             },
         ),
         migrations.CreateModel(
-            name='Comment',
+            name="Comment",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('body', models.TextField(verbose_name='Текст комментария')),
-                ('created', models.DateTimeField(auto_now_add=True)),
-                ('active', models.BooleanField(default=True)),
-                ('article', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='comments', to='blog.article', verbose_name='Статья')),
-                ('author', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='comments', to=settings.AUTH_USER_MODEL, verbose_name='Автор комментария')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("body", models.TextField(verbose_name="Текст комментария")),
+                ("created", models.DateTimeField(auto_now_add=True)),
+                ("active", models.BooleanField(default=True)),
+                (
+                    "article",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="comments",
+                        to="blog.article",
+                        verbose_name="Статья",
+                    ),
+                ),
+                (
+                    "author",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="comments",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="Автор комментария",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Комментарий',
-                'verbose_name_plural': 'Комментарии',
-                'ordering': ('-created',),
+                "verbose_name": "Комментарий",
+                "verbose_name_plural": "Комментарии",
+                "ordering": ("-created",),
             },
         ),
         migrations.AddField(
-            model_name='article',
-            name='category',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='articles', to='blog.category', verbose_name='Категория'),
+            model_name="article",
+            name="category",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="articles",
+                to="blog.category",
+                verbose_name="Категория",
+            ),
         ),
         migrations.AddField(
-            model_name='article',
-            name='users_like',
-            field=models.ManyToManyField(blank=True, related_name='articles_like', to=settings.AUTH_USER_MODEL, verbose_name='Понравилось пользователям'),
+            model_name="article",
+            name="users_like",
+            field=models.ManyToManyField(
+                blank=True,
+                related_name="articles_like",
+                to=settings.AUTH_USER_MODEL,
+                verbose_name="Понравилось пользователям",
+            ),
         ),
     ]
